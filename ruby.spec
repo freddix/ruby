@@ -1,8 +1,8 @@
 %bcond_with	bootstrap
 
-%define		basever		1.9.3
-%define		patchlevel	286
-%define		ruby_ver	1.9.1
+%define		basever		2.0.0
+%define		patchlevel	353
+%define		ruby_ver	2.0.0
 %define		rel		1
 
 Summary:	Ruby - interpreted scripting language
@@ -12,11 +12,10 @@ Release:	p%{patchlevel}.%{rel}
 License:	The Ruby License
 Group:		Development/Languages
 Source0:	ftp://ftp.ruby-lang.org/pub/ruby/%{name}-%{basever}-p%{patchlevel}.tar.bz2
-# Source0-md5:	e76848a86606a4fd5dcf14fc4b4e755e
+# Source0-md5:	20eb8f067d20f6b76b7e16cce2a85a55
 Source1:	ftp://ftp.ruby-lang.org/pub/ruby/1.8/%{name}-1.8.7-p358.tar.gz
 # Source1-md5:	26bd55358847459a7752acdbd33a535f
 Patch0:		%{name}-r5108.patch
-Patch1:		%{name}-bison.patch
 URL:		http://www.ruby-lang.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -28,7 +27,7 @@ BuildRequires:	openssl-devel
 BuildRequires:	readline-devel
 %{!?with_bootstrap:BuildRequires:	ruby}
 BuildRequires:	sed
-BuildRequires:	tk-devel
+#BuildRequires:	tk-devel
 BuildRequires:	unzip
 Requires:	%{name}-libs = %{epoch}:%{version}-%{release}
 Provides:	ruby(ver) = %{ruby_ver}
@@ -73,12 +72,10 @@ find -type f \( -name '*.rb' -o -name '*.cgi' -o -name '*.test' -o -name 'ruby.1
 	-o -name 'ruby.info*' -o -name '*.html' -o -name '*.tcl' -o -name '*.texi' \) \
 	| xargs %{__sed} -i 's,/usr/local/bin/,%{_bindir}/,'
 
-# fix build with recent bison
-%patch1 -p1
-%{__rm} parse.{c,h}
-
+%if %{with bootstrap}
 cd %{name}-1.8.7-p358
 %patch0 -p1
+%endif
 
 %build
 cp -f /usr/share/automake/config.sub .
@@ -93,7 +90,6 @@ cd ..
 %{__autoconf}
 %configure \
 	--disable-install-doc	\
-	--disable-static	\
 	--enable-pthread	\
 	--enable-shared		\
 	%{?with_bootstrap:--with-baseruby=%{name}-1.8.7-p358/miniruby}
@@ -106,6 +102,10 @@ rm -rf $RPM_BUILD_ROOT
 %{__make} install-nodoc \
 	DESTDIR=$RPM_BUILD_ROOT
 
+%{__rm} -r $RPM_BUILD_ROOT%{_libdir}/%{name}/gems/%{ruby_ver}/gems
+%{__rm} -r $RPM_BUILD_ROOT%{_libdir}/*.a
+
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -114,7 +114,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc README README.EXT ChangeLog ToDo
+%doc README README.EXT ChangeLog
 %attr(755,root,root) %{_bindir}/erb
 %attr(755,root,root) %{_bindir}/gem
 %attr(755,root,root) %{_bindir}/irb
@@ -158,7 +158,8 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/%{name}/gems
 %dir %{_libdir}/%{name}/gems/%{ruby_ver}
 %dir %{_libdir}/%{name}/gems/%{ruby_ver}/specifications
-%{_libdir}/%{name}/gems/%{ruby_ver}/specifications/*.gemspec
+%dir %{_libdir}/%{name}/gems/%{ruby_ver}/specifications/default
+%{_libdir}/%{name}/gems/%{ruby_ver}/specifications/default/*.gemspec
 
 %{_libdir}/%{name}/%{ruby_ver}/*-linux*/rbconfig.rb
 %{_libdir}/%{name}/%{ruby_ver}/*.rb
@@ -177,6 +178,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/%{name}/%{ruby_ver}/net
 %{_libdir}/%{name}/%{ruby_ver}/openssl
 %{_libdir}/%{name}/%{ruby_ver}/optparse
+%{_libdir}/%{name}/%{ruby_ver}/psych
 %{_libdir}/%{name}/%{ruby_ver}/racc
 %{_libdir}/%{name}/%{ruby_ver}/rake
 %{_libdir}/%{name}/%{ruby_ver}/rbconfig
@@ -187,7 +189,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/%{name}/%{ruby_ver}/rss
 %{_libdir}/%{name}/%{ruby_ver}/rubygems
 %{_libdir}/%{name}/%{ruby_ver}/shell
-%{_libdir}/%{name}/%{ruby_ver}/syck
+%{_libdir}/%{name}/%{ruby_ver}/syslog
 %{_libdir}/%{name}/%{ruby_ver}/test
 %{_libdir}/%{name}/%{ruby_ver}/uri
 %{_libdir}/%{name}/%{ruby_ver}/webrick
