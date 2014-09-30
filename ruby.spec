@@ -1,18 +1,15 @@
 %bcond_with	bootstrap
 
-%define		basever		2.0.0
-%define		patchlevel	353
-%define		ruby_ver	2.0.0
-%define		rel		1
+%define		ruby_ver	2.1.0
 
 Summary:	Ruby - interpreted scripting language
 Name:		ruby
-Version:	%{basever}
-Release:	p%{patchlevel}.%{rel}
+Version:	2.1.3
+Release:	1
 License:	The Ruby License
 Group:		Development/Languages
-Source0:	ftp://ftp.ruby-lang.org/pub/ruby/%{name}-%{basever}-p%{patchlevel}.tar.bz2
-# Source0-md5:	20eb8f067d20f6b76b7e16cce2a85a55
+Source0:	http://cache.ruby-lang.org/pub/ruby/2.1/%{name}-%{version}.tar.xz
+# Source0-md5:	fbc50ae56e7ac74501c8955abc248d34
 Source1:	ftp://ftp.ruby-lang.org/pub/ruby/1.8/%{name}-1.8.7-p358.tar.gz
 # Source1-md5:	26bd55358847459a7752acdbd33a535f
 Patch0:		%{name}-r5108.patch
@@ -34,7 +31,7 @@ Provides:	ruby(ver) = %{ruby_ver}
 Provides:	ruby-modules(ver) = %{ruby_ver}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		ruby_ridir	%{_datadir}/ri/%{ruby_ver}/system
+%define		_libexecdir	%{_libdir}/ruby
 
 %description
 Ruby is the interpreted scripting language for quick and easy
@@ -66,7 +63,7 @@ Requires:	%{name} = %{epoch}:%{version}-%{release}
 Ruby development libraries.
 
 %prep
-%setup -qn %{name}-%{basever}-p%{patchlevel} -a1
+%setup -q -a1
 
 find -type f \( -name '*.rb' -o -name '*.cgi' -o -name '*.test' -o -name 'ruby.1' \
 	-o -name 'ruby.info*' -o -name '*.html' -o -name '*.tcl' -o -name '*.texi' \) \
@@ -92,6 +89,7 @@ cd ..
 	--disable-install-doc	\
 	--enable-pthread	\
 	--enable-shared		\
+	--with-dbm-type=gdbm_compat \
 	%{?with_bootstrap:--with-baseruby=%{name}-1.8.7-p358/miniruby}
 
 %{__make} -j1 %{?with_bootstrap:BASERUBY="ruby-1.8.7-p358/miniruby -I./ruby-1.8.7-p358/lib"}
@@ -105,6 +103,8 @@ rm -rf $RPM_BUILD_ROOT
 %{__rm} -r $RPM_BUILD_ROOT%{_libdir}/%{name}/gems/%{ruby_ver}/gems
 %{__rm} -r $RPM_BUILD_ROOT%{_libdir}/*.a
 
+%check
+%{__make} test
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -136,6 +136,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/%{name}/%{ruby_ver}/*-linux*/json/ext
 %dir %{_libdir}/%{name}/%{ruby_ver}/*-linux*/mathn
 %dir %{_libdir}/%{name}/%{ruby_ver}/*-linux*/racc
+%dir %{_libdir}/%{name}/%{ruby_ver}/*-linux*/rbconfig
 
 %dir %{_libdir}/%{name}/site_ruby
 %dir %{_libdir}/%{name}/site_ruby/%{ruby_ver}
@@ -144,7 +145,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/%{name}/vendor_ruby/%{ruby_ver}
 %dir %{_libdir}/%{name}/vendor_ruby/%{ruby_ver}/*-linux*
 
-%attr(755,root,root) %{_libdir}/%{name}/%{ruby_ver}/*-linux*/[a-s]*.so
+%attr(755,root,root) %{_libdir}/%{name}/%{ruby_ver}/*-linux*/[a-t]*.so
 %attr(755,root,root) %{_libdir}/%{name}/%{ruby_ver}/*-linux*/[u-z]*.so
 %attr(755,root,root) %{_libdir}/%{name}/%{ruby_ver}/*-linux*/digest/*.so
 %attr(755,root,root) %{_libdir}/%{name}/%{ruby_ver}/*-linux*/dl/*.so
@@ -154,6 +155,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/%{name}/%{ruby_ver}/*-linux*/json/ext/*.so
 %attr(755,root,root) %{_libdir}/%{name}/%{ruby_ver}/*-linux*/mathn/*.so
 %attr(755,root,root) %{_libdir}/%{name}/%{ruby_ver}/*-linux*/racc/*.so
+%attr(755,root,root) %{_libdir}/%{name}/%{ruby_ver}/*-linux*/rbconfig/sizeof.so
 
 %dir %{_libdir}/%{name}/gems
 %dir %{_libdir}/%{name}/gems/%{ruby_ver}
