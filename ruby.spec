@@ -4,12 +4,12 @@
 
 Summary:	Ruby - interpreted scripting language
 Name:		ruby
-Version:	2.1.3
+Version:	2.1.5
 Release:	1
 License:	The Ruby License
 Group:		Development/Languages
 Source0:	http://cache.ruby-lang.org/pub/ruby/2.1/%{name}-%{version}.tar.xz
-# Source0-md5:	fbc50ae56e7ac74501c8955abc248d34
+# Source0-md5:	8a30ed4b022a24acbb461976c9c70789
 Source1:	ftp://ftp.ruby-lang.org/pub/ruby/1.8/%{name}-1.8.7-p358.tar.gz
 # Source1-md5:	26bd55358847459a7752acdbd33a535f
 Patch0:		%{name}-r5108.patch
